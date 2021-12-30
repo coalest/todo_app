@@ -1,8 +1,9 @@
 require 'sinatra'
-require 'sinatra/reloader'
+require 'sinatra/reloader' if development?
 require 'sinatra/content_for'
 require 'tilt/erubis'
 require 'pry'
+require 'puma'
 
 configure do
   enable :sessions
@@ -66,7 +67,7 @@ end
 def error_for_list_name(name)
   if !(1..100).cover? name.size
     'List names must be between 1 and 100 characters long'
-   elsif other_lists(name).any? { |list| list[:name] == name }
+  elsif session[:lists].any? { |list| list[:name] == name }
      'That todo list name already exists'
   end
 end
@@ -83,8 +84,14 @@ end
 
 def other_lists(name)
   return [] unless params[:list_id]
-  current_list_name = session[:lists][params[:list_id].to_i][:name] 
-  session[:lists].reject { |list| current_list_name == name} 
+  if params[:list_id]
+    binding.pry
+    current_list_name = session[:lists][params[:list_id].to_i][:name] 
+    session[:lists].reject { |list| current_list_name == name} 
+  else
+    binding.pry
+    session[:lists]
+  end
 end
 
 get "/" do
@@ -125,14 +132,14 @@ post "/lists/:list_id" do
   @list_id = params[:list_id].to_i
   @list = session[:lists][@list_id]
 
-  error = error_for_list_name(list_name)
+  error = @list[:name] == list_name ? nil : error_for_list_name(list_name)
 
   if error
     session[:error] = error
     erb :edit_list, layout: :layout
   else
     @list[:name] = params["list_name"]
-    session[:success] = 'List name changed'
+    session[:success] = 'List name updated'
     redirect "/lists"
   end
 end
@@ -162,7 +169,6 @@ end
 post "/lists/:list_id/todos" do
   @list_id = params[:list_id].to_i
   @list = session[:lists][@list_id] 
-
 
   todo = params[:todo].strip
   error = error_for_todo(todo)
