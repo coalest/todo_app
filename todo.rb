@@ -2,7 +2,6 @@ require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'sinatra/content_for'
 require 'tilt/erubis'
-require 'pry'
 require 'puma'
 
 configure do
@@ -80,18 +79,6 @@ end
 
 def valid_id?(id)
   (id.to_i.to_s == id) && (0...session[:lists].count).cover?(id.to_i)
-end
-
-def other_lists(name)
-  return [] unless params[:list_id]
-  if params[:list_id]
-    binding.pry
-    current_list_name = session[:lists][params[:list_id].to_i][:name] 
-    session[:lists].reject { |list| current_list_name == name} 
-  else
-    binding.pry
-    session[:lists]
-  end
 end
 
 get "/" do
