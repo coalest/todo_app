@@ -1,6 +1,6 @@
-<ul id="lists"> <% sort_lists(@lists) do |list, i| %>
-    <li class="<%= "complete" if list_completed?(list) %>"> 
-      <a href="/lists/<%= i %>">
+<ul id="lists"> <% sort_lists(@lists) do |list| %>
+    <li class="<%== "complete" if list_completed?(list) %>"> 
+      <a href="/lists/<%= list[:id] %>">
         <h2><%= list[:name] %></h2>
         <p><%= todos_left(list) %> / <%= todos_count(list) %><p>
       </a>
