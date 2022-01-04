@@ -3,7 +3,6 @@ require 'sinatra/reloader' if development?
 require 'sinatra/content_for'
 require 'tilt/erubis'
 require 'puma'
-require 'pry'
 
 configure do
   enable :sessions
@@ -98,7 +97,6 @@ end
 # view lists of lists
 get '/lists' do
   @lists = session[:lists]
-  binding.pry
   erb :lists, layout: :layout
 end
 
